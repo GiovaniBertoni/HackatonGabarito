@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-br" layout:decorate="~{layout/main-layout}" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.w3.org/1999/xhtml">
+<head><title>Painel do Administrador</title></head>
+<body>
+<div layout:fragment="content">
+    <h1 class="h3 mb-4 text-gray-800">Painel do Administrador</h1>
+    <div class="row">
+        <div class="col-md-4 mb-4"><div class="card shadow h-100 py-2"><div class="card-body"><a th:href="@{/admin/turmas}" class="text-decoration-none stretched-link">Gerenciar Turmas</a></div></div></div>
+        <div class="col-md-4 mb-4"><div class="card shadow h-100 py-2"><div class="card-body"><a th:href="@{/admin/disciplinas}" class="text-decoration-none stretched-link">Gerenciar Disciplinas</a></div></div></div>
+        <div class="col-md-4 mb-4"><div class="card shadow h-100 py-2"><div class="card-body"><a th:href="@{/admin/alunos}" class="text-decoration-none stretched-link">Gerenciar Alunos</a></div></div></div>
+    </div>
+</div>
+</body>
+</html>

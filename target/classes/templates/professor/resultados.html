@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main-layout}">
+<head>
+    <title>Resultados da Prova</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h3>Resultados da Prova: <span th:text="${prova.titulo}"></span></h3>
+    <p>
+        <span class="badge bg-primary" th:text="${prova.disciplina.nome}"></span>
+        <span class="badge bg-secondary" th:text="${prova.turma.nome}"></span>
+    </p>
+    <div class="card mt-4">
+        <div class="card-header">Notas da Turma</div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>RA do Aluno</th>
+                    <th>Nome do Aluno</th>
+                    <th>Nota Final</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${respostas}">
+                    <td th:text="${r.aluno.ra}"></td>
+                    <td th:text="${r.aluno.usuario.nome}"></td>
+                    <!--
+                      AQUI ESTÁ A ATUALIZAÇÃO:
+                      Agora usamos a variável 'notaMaxima' vinda do controller
+                      para mostrar o valor total correto da prova.
+                    -->
+                    <td th:text="${#numbers.formatDecimal(r.nota, 1, 2) + ' / ' + #numbers.formatDecimal(notaMaxima, 1, 2)}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(respostas)}">
+                    <td colspan="3" class="text-center">Nenhuma resposta foi enviada para esta prova ainda.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
