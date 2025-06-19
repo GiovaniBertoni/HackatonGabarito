@@ -87,9 +87,6 @@ public class DataInitializer implements CommandLineRunner {
 
             //
             // AQUI ESTÁ A CORREÇÃO:
-            // Agora criamos um Map do tipo correto, Map<Integer, GabaritoQuestao>,
-            // para o gabarito da prova de teste. Cada questão agora tem uma resposta e um valor.
-            //
             Map<Integer, GabaritoQuestao> respostasComValor = Map.of(
                     1, new GabaritoQuestao("A", 2.0),
                     2, new GabaritoQuestao("C", 2.0),
