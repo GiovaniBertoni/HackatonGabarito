@@ -5,16 +5,14 @@ import com.unialfa.hackathon.model.entity.Disciplina;
 import com.unialfa.hackathon.model.entity.Turma;
 import com.unialfa.hackathon.model.entity.Usuario;
 import com.unialfa.hackathon.model.entity.Perfil;
-import com.unialfa.hackathon.repository.AlunoRepository;
-import com.unialfa.hackathon.repository.DisciplinaRepository;
-import com.unialfa.hackathon.repository.TurmaRepository;
-import com.unialfa.hackathon.repository.UsuarioRepository;
+import com.unialfa.hackathon.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -30,11 +28,17 @@ public class AdminController {
     @Autowired private AlunoRepository alunoRepository;
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private RespostaAlunoRepository respostaAlunoRepository;
+
+    // <<< Injetado o repositório de provas para verificação >>>
+    @Autowired private ProvaRepository provaRepository;
 
     @GetMapping
     public String adminPanel() {
         return "admin/index";
     }
+
+    // --- GESTÃO DE TURMAS ---
 
     @GetMapping("/turmas")
     public String listarTurmas(Model model) {
@@ -46,10 +50,25 @@ public class AdminController {
     @PostMapping("/turmas")
     public String salvarTurma(@ModelAttribute Turma turma, RedirectAttributes redirectAttributes) {
         turmaRepository.save(turma);
-        redirectAttributes.addFlashAttribute("sucesso", "Turma salva com sucesso!");
+        redirectAttributes.addFlashAttribute("sucesso", "Turma guardada com sucesso!");
         return "redirect:/admin/turmas";
     }
 
+    // <<< Eliminar Turma >>>
+    @GetMapping("/turmas/eliminar/{id}")
+    public String eliminarTurma(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        // Verifica se a turma está a ser usada em alguma prova
+        if (!provaRepository.findByTurmaId(id).isEmpty()) {
+            redirectAttributes.addFlashAttribute("erro", "Não pode eliminar uma turma que já possui provas associadas.");
+            return "redirect:/admin/turmas";
+        }
+        turmaRepository.deleteById(id);
+        redirectAttributes.addFlashAttribute("sucesso", "Turma eliminada com sucesso!");
+        return "redirect:/admin/turmas";
+    }
+
+
+    // --- GESTÃO DE DISCIPLINAS ---
     @GetMapping("/disciplinas")
     public String listarDisciplinas(Model model) {
         model.addAttribute("disciplinas", disciplinaRepository.findAll());
@@ -60,7 +79,20 @@ public class AdminController {
     @PostMapping("/disciplinas")
     public String salvarDisciplina(@ModelAttribute Disciplina disciplina, RedirectAttributes redirectAttributes) {
         disciplinaRepository.save(disciplina);
-        redirectAttributes.addFlashAttribute("sucesso", "Disciplina salva com sucesso!");
+        redirectAttributes.addFlashAttribute("sucesso", "Disciplina guardada com sucesso!");
+        return "redirect:/admin/disciplinas";
+    }
+
+    // <<< Eliminar Disciplina >>>
+    @GetMapping("/disciplinas/eliminar/{id}")
+    public String eliminarDisciplina(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        // Verifica se a disciplina está a ser usada em alguma prova
+        if (!provaRepository.findByDisciplinaId(id).isEmpty()) {
+            redirectAttributes.addFlashAttribute("erro", "Não pode eliminar uma disciplina que já possui provas associadas.");
+            return "redirect:/admin/disciplinas";
+        }
+        disciplinaRepository.deleteById(id);
+        redirectAttributes.addFlashAttribute("sucesso", "Disciplina eliminada com sucesso!");
         return "redirect:/admin/disciplinas";
     }
 
@@ -73,32 +105,66 @@ public class AdminController {
     }
 
     @PostMapping("/alunos")
-    @Transactional // Garante que todas as operações com o banco sejam feitas em uma única transação
-    public String salvarAluno(@ModelAttribute Aluno aluno, @RequestParam String nomeUsuario, @RequestParam String emailUsuario, @RequestParam Long turmaId, RedirectAttributes redirectAttributes) {
-        // Verifica se o email do usuário já existe
+    @Transactional
+    public String salvarAluno(@ModelAttribute Aluno aluno,
+                              @RequestParam String nomeUsuario,
+                              @RequestParam String emailUsuario,
+                              @RequestParam String senhaUsuario,
+                              @RequestParam Long turmaId,
+                              RedirectAttributes redirectAttributes) {
         if (usuarioRepository.findByEmail(emailUsuario).isPresent()) {
             redirectAttributes.addFlashAttribute("erro", "O e-mail '" + emailUsuario + "' já está em uso.");
             return "redirect:/admin/alunos";
         }
-
-        // 1. Cria e salva o Usuario associado
         Usuario novoUsuario = new Usuario();
         novoUsuario.setNome(nomeUsuario);
         novoUsuario.setEmail(emailUsuario);
-        novoUsuario.setSenha(passwordEncoder.encode("aluno123")); // Senha padrão
+        novoUsuario.setSenha(passwordEncoder.encode(senhaUsuario));
         novoUsuario.setPerfil(Perfil.ALUNO);
         usuarioRepository.save(novoUsuario);
-
-        // 2. Associa o novo usuário ao aluno e salva o aluno
         aluno.setUsuario(novoUsuario);
         alunoRepository.save(aluno);
-
-        // 3. Associa o aluno à turma
         Turma turma = turmaRepository.findById(turmaId).orElseThrow(() -> new RuntimeException("Turma não encontrada"));
-        turma.getAlunos().add(aluno); // Adiciona o novo aluno à lista de alunos da turma
-        turmaRepository.save(turma); // Salva a turma com a lista de alunos atualizada
+        turma.getAlunos().add(aluno);
+        turmaRepository.save(turma);
+        redirectAttributes.addFlashAttribute("sucesso", "Aluno guardado com sucesso!");
+        return "redirect:/admin/alunos";
+    }
 
-        redirectAttributes.addFlashAttribute("sucesso", "Aluno salvo com sucesso!");
+    @GetMapping("/alunos/editar/{id}")
+    public String editarAlunoForm(@PathVariable("id") Long id, Model model) {
+        Aluno aluno = alunoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Aluno inválido Id:" + id));
+        model.addAttribute("aluno", aluno);
+        return "admin/editar-aluno";
+    }
+
+    @PostMapping("/alunos/atualizar/{id}")
+    @Transactional
+    public String atualizarAluno(@PathVariable("id") Long id, @ModelAttribute Aluno aluno, @RequestParam String novaSenha, RedirectAttributes redirectAttributes) {
+        Aluno alunoExistente = alunoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Aluno inválido Id:" + id));
+        alunoExistente.setRa(aluno.getRa());
+        Usuario usuario = alunoExistente.getUsuario();
+        usuario.setNome(aluno.getUsuario().getNome());
+        usuario.setEmail(aluno.getUsuario().getEmail());
+        if (StringUtils.hasText(novaSenha)) {
+            usuario.setSenha(passwordEncoder.encode(novaSenha));
+        }
+        alunoRepository.save(alunoExistente);
+        redirectAttributes.addFlashAttribute("sucesso", "Aluno atualizado com sucesso!");
+        return "redirect:/admin/alunos";
+    }
+
+    @GetMapping("/alunos/eliminar/{id}")
+    @Transactional
+    public String eliminarAluno(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        Aluno aluno = alunoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Aluno inválido Id:" + id));
+        respostaAlunoRepository.deleteAll(respostaAlunoRepository.findByAlunoId(aluno.getId()));
+        for(Turma turma : aluno.getTurmas()) {
+            turma.getAlunos().remove(aluno);
+        }
+        alunoRepository.delete(aluno);
+
+        redirectAttributes.addFlashAttribute("sucesso", "Aluno e todo o seu histórico foram eliminados com sucesso!");
         return "redirect:/admin/alunos";
     }
 }
