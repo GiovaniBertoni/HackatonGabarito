@@ -2,17 +2,14 @@ package com.unialfa.hackathon.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import static org.springframework.security.config.Customizer.withDefaults;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -25,60 +22,59 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(1)
-    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/**")
-                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/login").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(withDefaults());
-        return http.build();
-    }
+                        // Regras de permissão ordenadas da mais específica para a mais geral >>>
 
-    @Bean
-    @Order(2)
-    public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                        // As regras de autorização por rota agora são feitas com @PreAuthorize nos Controllers
+                        // 1. Permite o acesso à consola H2 APENAS para ADMINs
+                        .requestMatchers(AntPathRequestMatcher.antMatcher("/banco/**")).hasRole("ADMIN")
+
+                        // 2. Permite o acesso à API para qualquer utilizador autenticado
+                        .requestMatchers(AntPathRequestMatcher.antMatcher("/api/**")).authenticated()
+
+                        // 3. Permite acesso público a ficheiros estáticos e à página de login
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/login").permitAll()
+
+                        // 4. Regras específicas por perfil (embora @PreAuthorize nos controllers já faça isto)
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/professor/**").hasRole("PROFESSOR")
+                        .requestMatchers("/aluno/**").hasRole("ALUNO")
+
+                        // 5. Qualquer outra requisição precisa de autenticação
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        // A linha abaixo foi substituída pelo successHandler
-                        // .defaultSuccessUrl("/", true) 
-                        .successHandler(customAuthenticationSuccessHandler()) // <-- LÓGICA DE REDIRECIONAMENTO INTELIGENTE
+                        .successHandler(customAuthenticationSuccessHandler())
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
+                )
+                // <<< MUDANÇA: Configurações para a consola H2 movidas para aqui >>>
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/banco/**")) // Desativa CSRF para a consola
+                        .ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/api/**")) // Desativa CSRF para a API
+                )
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin()) // Permite que a consola seja renderizada num frame
                 );
         return http.build();
     }
 
-    /**
-     * Cria um manipulador de sucesso de autenticação customizado.
-     * Este método define para qual URL o usuário será redirecionado após o login,
-     * com base em seu perfil (ROLE).
-     */
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return (request, response, authentication) -> {
-            // Verifica a autoridade (perfil) do usuário autenticado
             if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
                 response.sendRedirect("/admin");
             } else if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"))) {
                 response.sendRedirect("/professor");
             } else if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ALUNO"))) {
-                response.sendRedirect("/aluno"); // Rota futura para o aluno
+                response.sendRedirect("/aluno");
             } else {
-                response.sendRedirect("/"); // Rota padrão caso nenhuma outra se aplique
+                response.sendRedirect("/");
             }
         };
     }
