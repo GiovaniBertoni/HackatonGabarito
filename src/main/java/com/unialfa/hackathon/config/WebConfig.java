@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addMapping("/**")
                 // Permite requisições do Flutter rodando no navegador em qualquer porta.
-                .allowedOriginPatterns("http://localhost:[*]", "http://192.168.0.128:[*]")
+                .allowedOriginPatterns("http://localhost:[*]", "http://192.168.1.39:[*]")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
