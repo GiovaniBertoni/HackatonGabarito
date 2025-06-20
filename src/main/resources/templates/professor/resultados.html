@@ -5,6 +5,16 @@
       layout:decorate="~{layout/main-layout}">
 <head>
     <title>Resultados da Prova</title>
+    <!-- <<< MUDANÇA: Estilo para o cursor do rato nos cabeçalhos -->
+    <style>
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        .sortable:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="content">
@@ -13,27 +23,37 @@
         <span class="badge bg-primary" th:text="${prova.disciplina.nome}"></span>
         <span class="badge bg-secondary" th:text="${prova.turma.nome}"></span>
     </p>
-    <div class="card mt-4">
-        <div class="card-header">Notas da Turma</div>
+
+    <!-- Painel de Estatísticas (sem alterações) -->
+    <div class="card bg-light my-4" th:if="${estatisticas.totalDeRespostas > 0}">
         <div class="card-body">
-            <table class="table">
+            <h5 class="card-title">Estatísticas da Turma</h5>
+            <div class="row text-center">
+                <div class="col-md-4"><p class="mb-0">Média da Turma</p><strong class="fs-4 text-primary" th:text="${#numbers.formatDecimal(estatisticas.media, 1, 2)}"></strong></div>
+                <div class="col-md-4"><p class="mb-0">Maior Nota</p><strong class="fs-4 text-success" th:text="${#numbers.formatDecimal(estatisticas.maiorNota, 1, 2)}"></strong></div>
+                <div class="col-md-4"><p class="mb-0">Menor Nota</p><strong class="fs-4 text-danger" th:text="${#numbers.formatDecimal(estatisticas.menorNota, 1, 2)}"></strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">Notas dos Alunos</div>
+        <div class="card-body">
+            <table class="table table-hover">
                 <thead>
                 <tr>
-                    <th>RA do Aluno</th>
-                    <th>Nome do Aluno</th>
-                    <th>Nota Final</th>
+                    <!-- <<< MUDANÇA: Cabeçalhos agora são clicáveis -->
+                    <th class="sortable" onclick="sortTable(0, 'string')">RA do Aluno <i class="bi bi-arrow-down-up"></i></th>
+                    <th class="sortable" onclick="sortTable(1, 'string')">Nome do Aluno <i class="bi bi-arrow-down-up"></i></th>
+                    <th class="sortable" onclick="sortTable(2, 'number')">Nota Final <i class="bi bi-arrow-down-up"></i></th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="tabela-notas">
                 <tr th:each="r : ${respostas}">
                     <td th:text="${r.aluno.ra}"></td>
                     <td th:text="${r.aluno.usuario.nome}"></td>
-                    <!--
-                      AQUI ESTÁ A ATUALIZAÇÃO:
-                      Agora usamos a variável 'notaMaxima' vinda do controller
-                      para mostrar o valor total correto da prova.
-                    -->
-                    <td th:text="${#numbers.formatDecimal(r.nota, 1, 2) + ' / ' + #numbers.formatDecimal(notaMaxima, 1, 2)}"></td>
+                    <!-- <<< MUDANÇA: Adicionado um 'data-sort' para ordenar numericamente -->
+                    <td th:attr="data-sort=${r.nota}" th:text="${#numbers.formatDecimal(r.nota, 1, 2) + ' / ' + #numbers.formatDecimal(notaMaxima, 1, 2)}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(respostas)}">
                     <td colspan="3" class="text-center">Nenhuma resposta foi enviada para esta prova ainda.</td>
@@ -43,5 +63,60 @@
         </div>
     </div>
 </div>
+
+<!-- <<< MUDANÇA: Script de Ordenação Adicionado >>> -->
+<div layout:fragment="scripts">
+    <script>
+        function sortTable(columnIndex, type) {
+            const table = document.querySelector("#tabela-notas");
+            const headers = document.querySelectorAll("th.sortable");
+            const currentHeader = headers[columnIndex];
+
+            // Determina a direção da ordenação (ascendente ou descendente)
+            const isAscending = currentHeader.getAttribute("data-sort-dir") === "asc";
+            const direction = isAscending ? -1 : 1;
+
+            // Converte as linhas da tabela num array para poder ordenar
+            const rows = Array.from(table.getElementsByTagName("tr"));
+
+            rows.sort(function(rowA, rowB) {
+                const cellA = rowA.getElementsByTagName("td")[columnIndex];
+                const cellB = rowB.getElementsByTagName("td")[columnIndex];
+
+                let valueA, valueB;
+
+                if (type === 'number') {
+                    // Para números, usa o valor do atributo 'data-sort'
+                    valueA = parseFloat(cellA.getAttribute("data-sort"));
+                    valueB = parseFloat(cellB.getAttribute("data-sort"));
+                } else {
+                    // Para texto, usa o conteúdo da célula
+                    valueA = cellA.textContent.trim().toLowerCase();
+                    valueB = cellB.textContent.trim().toLowerCase();
+                }
+
+                if (valueA < valueB) return -1 * direction;
+                if (valueA > valueB) return 1 * direction;
+                return 0;
+            });
+
+            // Limpa a tabela e adiciona as linhas ordenadas
+            while (table.firstChild) {
+                table.removeChild(table.firstChild);
+            }
+            rows.forEach(row => table.appendChild(row));
+
+            // Atualiza os ícones e a direção da ordenação
+            headers.forEach(header => {
+                header.removeAttribute("data-sort-dir");
+                header.querySelector("i").className = "bi bi-arrow-down-up";
+            });
+
+            currentHeader.setAttribute("data-sort-dir", isAscending ? "desc" : "asc");
+            currentHeader.querySelector("i").className = isAscending ? "bi bi-arrow-down" : "bi bi-arrow-up";
+        }
+    </script>
+</div>
+
 </body>
 </html>
