@@ -34,9 +34,9 @@
                     <td th:text="${#dates.format(resposta.prova.dataAplicacao, 'dd/MM/yyyy')}"></td>
                     <td>
                         <!-- Exibe a nota no formato "nota / nota_maxima" -->
-                        <strong class="fs-5 text-primary" th:text="${#numbers.formatDecimal(resposta.nota, 1, 2, 'POINT')}"></strong>
+                        <strong class="fs-5 text-primary" th:text="${#numbers.formatDecimal(resposta.nota, 1, 1, 'POINT')}"></strong>
                         <span> / </span>
-                        <span th:text="${#numbers.formatDecimal(notasMaximas[resposta.prova.id], 1, 2, 'POINT')}"></span>
+                        <span th:text="${#numbers.formatDecimal(notasMaximas[resposta.prova.id], 1, 1, 'POINT')}"></span>
                     </td>
                     <td>
                         <a th:href="@{/aluno/gabarito/{id}(id=${resposta.id})}" class="btn btn-sm btn-info">
