@@ -21,6 +21,7 @@
                     <th>Disciplina</th>
                     <th>Data</th>
                     <th>Nota Obtida</th>
+                    <th>Ações</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -36,6 +37,11 @@
                         <strong class="fs-5 text-primary" th:text="${#numbers.formatDecimal(resposta.nota, 1, 2, 'POINT')}"></strong>
                         <span> / </span>
                         <span th:text="${#numbers.formatDecimal(notasMaximas[resposta.prova.id], 1, 2, 'POINT')}"></span>
+                    </td>
+                    <td>
+                        <a th:href="@{/aluno/gabarito/{id}(id=${resposta.id})}" class="btn btn-sm btn-info">
+                            <i class="bi bi-eye-fill"></i> Ver Gabarito
+                        </a>
                     </td>
                 </tr>
                 </tbody>

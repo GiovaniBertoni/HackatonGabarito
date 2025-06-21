@@ -2,14 +2,18 @@ package com.unialfa.hackathon.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -21,27 +25,37 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // <<< REGRA 1: API para o Flutter (Stateless) >>>
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/api/**") // Aplica-se apenas à API
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().authenticated()
+                )
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(withDefaults()); // Usa autenticação Básica
+        return http.build();
+    }
+
+    // <<< REGRA 2: Site Web e Consola do Banco (Stateful com Form Login) >>>
+    @Bean
+    @Order(2)
+    public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // <<< Regras de permissão ordenadas da mais específica para a mais geral >>>
-
-                        // 1. Permite o acesso à consola H2 APENAS para ADMINs
+                        // Permite acesso público a ficheiros estáticos e à página de login
+                        .requestMatchers(
+                                AntPathRequestMatcher.antMatcher("/css/**"),
+                                AntPathRequestMatcher.antMatcher("/js/**"),
+                                AntPathRequestMatcher.antMatcher("/images/**"),
+                                AntPathRequestMatcher.antMatcher("/login")
+                        ).permitAll()
+                        // Regra para a consola do banco de dados: só o ADMIN pode aceder
                         .requestMatchers(AntPathRequestMatcher.antMatcher("/banco/**")).hasRole("ADMIN")
-
-                        // 2. Permite o acesso à API para qualquer utilizador autenticado
-                        .requestMatchers(AntPathRequestMatcher.antMatcher("/api/**")).authenticated()
-
-                        // 3. Permite acesso público a ficheiros estáticos e à página de login
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/login").permitAll()
-
-                        // 4. Regras específicas por perfil (embora @PreAuthorize nos controllers já faça isto)
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/professor/**").hasRole("PROFESSOR")
-                        .requestMatchers("/aluno/**").hasRole("ALUNO")
-
-                        // 5. Qualquer outra requisição precisa de autenticação
+                        // Qualquer outra página web requer login
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -53,14 +67,10 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
-                // <<< Configurações para a consola H2 movidas para aqui >>>
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/banco/**")) // Desativa CSRF para a consola
-                        .ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/api/**")) // Desativa CSRF para a API
-                )
-                .headers(headers -> headers
-                        .frameOptions(frameOptions -> frameOptions.sameOrigin()) // Permite que a consola seja renderizada num frame
-                );
+                // Desativa CSRF apenas para a consola, se necessário, mas geralmente não é preciso com esta config
+                .csrf(csrf -> csrf.ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/banco/**")))
+                // Permite que a consola seja renderizada num frame
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
         return http.build();
     }
 
