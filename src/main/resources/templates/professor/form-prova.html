@@ -19,15 +19,15 @@
                         <div class="d-flex justify-content-around text-center">
                             <div>
                                 <p class="mb-0">Soma Atual</p>
-                                <strong id="soma-atual" class="fs-4">0.00</strong>
+                                <strong id="soma-atual" class="fs-4">0.0</strong>
                             </div>
                             <div>
                                 <p class="mb-0">Valor da Prova</p>
-                                <strong class="fs-4 text-primary">60.00</strong>
+                                <strong class="fs-4 text-primary">6.0</strong>
                             </div>
                             <div id="restante-container">
-                                <p class="mb-0">Restante para 60</p>
-                                <strong id="restante" class="fs-4">60.00</strong>
+                                <p class="mb-0">Restante para 6.0</p>
+                                <strong id="restante" class="fs-4">6.0</strong>
                             </div>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
         });
 
         const container = document.getElementById('gabarito-container');
-        const targetValue = 60.0;
+        const targetValue = 6.0;
         const somaAtualEl = document.getElementById('soma-atual');
         const restanteEl = document.getElementById('restante');
         const restanteContainerEl = document.getElementById('restante-container');
@@ -100,13 +100,13 @@
             });
 
             const restante = targetValue - soma;
-            somaAtualEl.textContent = soma.toFixed(2).replace('.', ',');
-            restanteEl.textContent = restante.toFixed(2).replace('.', ',');
+            somaAtualEl.textContent = soma.toFixed(1);
+            restanteEl.textContent = restante.toFixed(1);
 
             restanteContainerEl.classList.remove('text-success', 'text-danger');
             if (restante < 0) {
                 restanteContainerEl.classList.add('text-danger');
-            } else if (restante === 0) {
+            } else if (Math.abs(restante) < 0.01) {
                 restanteContainerEl.classList.add('text-success');
             }
         }

@@ -23,10 +23,7 @@ public class Gabarito implements Serializable {
     @JoinColumn(name = "prova_id", nullable = false, unique = true)
     private Prova prova;
 
-    //
-    // AQUI ESTÁ A CORREÇÃO:
     // Inicializamos o mapa para que ele nunca seja nulo.
-    //
     @Convert(converter = GabaritoQuestaoConverter.class)
     @Column(columnDefinition = "TEXT", nullable = false)
     private Map<Integer, GabaritoQuestao> respostas = new HashMap<>();
