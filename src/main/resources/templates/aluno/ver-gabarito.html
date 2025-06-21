@@ -15,14 +15,14 @@
 
     <div class="card">
         <div class="card-header">
-            Seu Desempenho
+            O seu Desempenho
         </div>
         <div class="card-body">
             <table class="table table-bordered">
                 <thead class="table-light">
                 <tr>
                     <th>Questão</th>
-                    <th>Sua Resposta</th>
+                    <th>A sua Resposta</th>
                     <th>Gabarito Oficial</th>
                     <th>Pontuação</th>
                 </tr>
@@ -30,15 +30,18 @@
                 <tbody>
                 <!-- Itera sobre as questões do gabarito oficial -->
                 <tr th:each="gabaritoEntry : ${gabaritoOficial.respostas}"
-                    th:with="questaoNum=${gabaritoEntry.key}, questaoOficial=${gabaritoEntry.value}, respostaDada=${respostaAluno.respostas[__${questaoNum}__]}"
-                    th:classappend="${#strings.equalsIgnoreCase(respostaDada, questaoOficial.resposta)} ? 'table-success' : 'table-danger'">
+                th:with="questaoNum=${gabaritoEntry.key},
+                questaoOficial=${gabaritoEntry.value},
+                respostaDada=${respostaAluno.respostas.get(questaoNum)}"
 
-                    <td class="fw-bold" th:text="${questaoNum}"></td>
-                    <td th:text="${respostaDada ?: '-'}"></td> <!-- Mostra '-' se não houver resposta -->
-                    <td th:text="${questaoOficial.resposta}"></td>
+                th:classappend="${#strings.equalsIgnoreCase(respostaDada, questaoOficial.resposta)} ? 'table-success' : 'table-danger'">
 
-                    <!-- Mostra o valor da questão se acertou, ou 0.0 se errou -->
-                    <td th:text="${#strings.equalsIgnoreCase(respostaDada, questaoOficial.resposta) ? #numbers.formatDecimal(questaoOficial.valor, 1, 1, 'POINT') : '0.0'}"></td>
+                <td class="fw-bold" th:text="${questaoNum}"></td>
+                <td th:text="${respostaDada ?: '-'}"></td> <!-- Mostra '-' se não houver resposta -->
+                <td th:text="${questaoOficial.resposta}"></td>
+
+                <!-- Mostra o valor da questão se acertou, ou 0.0 se errou -->
+                <td th:text="${#strings.equalsIgnoreCase(respostaDada, questaoOficial.resposta) ? #numbers.formatDecimal(questaoOficial.valor, 1, 1, 'POINT') : '0.0'}"></td>
                 </tr>
                 </tbody>
             </table>
