@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main-layout}">
+<head>
+    <title>Correção da Prova</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h3>Correção: <span th:text="${respostaAluno.prova.titulo}"></span></h3>
+    <a th:href="@{/aluno}" class="btn btn-secondary mt-2 mb-4">
+        <i class="bi bi-arrow-left"></i> Voltar para Minhas Notas
+    </a>
+
+    <div class="card">
+        <div class="card-header">
+            Seu Desempenho
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                <tr>
+                    <th>Questão</th>
+                    <th>Sua Resposta</th>
+                    <th>Gabarito Oficial</th>
+                    <th>Pontuação</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Itera sobre as questões do gabarito oficial -->
+                <tr th:each="gabaritoEntry : ${gabaritoOficial.respostas}"
+                    th:with="questaoNum=${gabaritoEntry.key}, questaoOficial=${gabaritoEntry.value}, respostaDada=${respostaAluno.respostas[__${questaoNum}__]}"
+                    th:classappend="${#strings.equalsIgnoreCase(respostaDada, questaoOficial.resposta)} ? 'table-success' : 'table-danger'">
+
+                    <td class="fw-bold" th:text="${questaoNum}"></td>
+                    <td th:text="${respostaDada ?: '-'}"></td> <!-- Mostra '-' se não houver resposta -->
+                    <td th:text="${questaoOficial.resposta}"></td>
+
+                    <!-- Mostra o valor da questão se acertou, ou 0.0 se errou -->
+                    <td th:text="${#strings.equalsIgnoreCase(respostaDada, questaoOficial.resposta) ? #numbers.formatDecimal(questaoOficial.valor, 1, 1, 'POINT') : '0.0'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
