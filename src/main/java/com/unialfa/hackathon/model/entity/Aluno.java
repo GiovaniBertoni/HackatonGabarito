@@ -18,8 +18,12 @@ public class Aluno implements Serializable {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String ra; // Registro Acadêmico
+    @Column(unique = true, nullable = true)
+    private String ra;
+
+    public static String gerarRa(Long id) {
+        return String.format("RA%04d", id);  // Exemplo: RA0001
+    }
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")

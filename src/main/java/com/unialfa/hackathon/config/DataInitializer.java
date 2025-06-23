@@ -53,11 +53,15 @@ public class DataInitializer implements CommandLineRunner {
             usuarioAluno1.setPerfil(Perfil.ALUNO);
             usuarioRepository.save(usuarioAluno1);
 
-            // 2. Criar Alunos e associar
             Aluno aluno1 = new Aluno();
-            aluno1.setRa("111222");
             aluno1.setUsuario(usuarioAluno1);
-            alunoRepository.save(aluno1);
+            alunoRepository.save(aluno1); // Salva para gerar ID
+
+            // Gera o RA automático com base no ID gerado
+            String raGerado = Aluno.gerarRa(aluno1.getId());
+            aluno1.setRa(raGerado);
+            alunoRepository.save(aluno1); // Atualiza com RA gerado
+
 
             // 3. Criar Disciplinas e Turmas
             Disciplina disciplinaWeb = new Disciplina();

@@ -131,24 +131,30 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("erro", "O e-mail '" + emailUsuario + "' já está em uso.");
             return "redirect:/admin/alunos";
         }
-        if (alunoRepository.findByRa(aluno.getRa()).isPresent()) {
-            redirectAttributes.addFlashAttribute("erro", "O RA '" + aluno.getRa() + "' já está em uso.");
-            return "redirect:/admin/alunos";
-        }
         Usuario novoUsuario = new Usuario();
         novoUsuario.setNome(nomeUsuario);
         novoUsuario.setEmail(emailUsuario);
         novoUsuario.setSenha(passwordEncoder.encode(senhaUsuario));
         novoUsuario.setPerfil(Perfil.ALUNO);
         usuarioRepository.save(novoUsuario);
+
         aluno.setUsuario(novoUsuario);
-        alunoRepository.save(aluno);
-        Turma turma = turmaRepository.findById(turmaId).orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+        alunoRepository.save(aluno);  // Salva para gerar ID
+
+        // Agora gera o RA com o ID gerado
+        String raGerado = Aluno.gerarRa(aluno.getId());
+        aluno.setRa(raGerado);
+        alunoRepository.save(aluno);  // Atualiza o RA
+
+        Turma turma = turmaRepository.findById(turmaId)
+                .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
         turma.getAlunos().add(aluno);
         turmaRepository.save(turma);
+
         redirectAttributes.addFlashAttribute("sucesso", "Aluno guardado com sucesso!");
         return "redirect:/admin/alunos";
     }
+
 
     @GetMapping("/alunos/editar/{id}")
     public String editarAlunoForm(@PathVariable("id") Long id, Model model) {
