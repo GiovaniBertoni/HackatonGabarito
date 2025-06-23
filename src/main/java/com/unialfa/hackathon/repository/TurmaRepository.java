@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TurmaRepository extends JpaRepository<Turma, Long> {
-    // Métodos de consulta personalizados podem ser adicionados aqui se necessário.
 }

@@ -17,20 +17,16 @@
                     <div class="card-body">
                         <h5 class="card-title">Resumo da Pontuação</h5>
                         <div class="d-flex justify-content-around text-center">
-                            <div>
-                                <p class="mb-0">Soma Atual</p>
-                                <strong id="soma-atual" class="fs-4">0.0</strong>
-                            </div>
-                            <div>
-                                <p class="mb-0">Valor da Prova</p>
-                                <strong class="fs-4 text-primary">6.0</strong>
-                            </div>
-                            <div id="restante-container">
-                                <p class="mb-0">Restante para 6.0</p>
-                                <strong id="restante" class="fs-4">6.0</strong>
-                            </div>
+                            <div><p class="mb-0">Soma Atual</p><strong id="soma-atual" class="fs-4">0.0</strong></div>
+                            <div><p class="mb-0">Valor da Prova</p><strong class="fs-4 text-primary">6.0</strong></div>
+                            <div id="restante-container"><p class="mb-0">Restante para 6.0</p><strong id="restante" class="fs-4">6.0</strong></div>
                         </div>
                     </div>
+                </div>
+
+                <!-- <<< Alerta de Valor Excedido >>> -->
+                <div id="valor-excedido-alerta" class="alert alert-danger d-none" role="alert">
+                    <strong>Atenção!</strong> A soma dos valores das questões não pode ultrapassar "6.0". O botão de salvar foi desativado.
                 </div>
 
                 <!-- Detalhes da Prova -->
@@ -48,12 +44,12 @@
                         <div class="col-auto"><label class="form-label fw-bold">Questão 1:</label></div>
                         <div class="col"><div class="btn-group" role="group"><input type="radio" class="btn-check" name="resposta-1" id="q1-a" value="A" autocomplete="off" required><label class="btn btn-outline-primary" for="q1-a">A</label><input type="radio" class="btn-check" name="resposta-1" id="q1-b" value="B" autocomplete="off"><label class="btn btn-outline-primary" for="q1-b">B</label><input type="radio" class="btn-check" name="resposta-1" id="q1-c" value="C" autocomplete="off"><label class="btn btn-outline-primary" for="q1-c">C</label><input type="radio" class="btn-check" name="resposta-1" id="q1-d" value="D" autocomplete="off"><label class="btn btn-outline-primary" for="q1-d">D</label><input type="radio" class="btn-check" name="resposta-1" id="q1-e" value="E" autocomplete="off"><label class="btn btn-outline-primary" for="q1-e">E</label></div></div>
                         <div class="col-auto ps-4"><label for="valor-1" class="form-label">Valor:</label></div>
-                        <div class="col-md-2"><input type="number" step="0.01" min="0" name="valor-1" class="form-control valor-questao" placeholder="Ex: 1.5" required></div>
+                        <div class="col-md-2"><input type="number" step="0.1" min="0" name="valor-1" class="form-control valor-questao" placeholder="Ex: 0.5" required></div>
                     </div>
                 </div>
                 <button type="button" id="add-questao" class="btn btn-secondary mt-2"><i class="bi bi-plus"></i> Adicionar Questão</button>
                 <hr class="my-4">
-                <button type="submit" class="btn btn-primary btn-lg">Salvar Prova e Gabarito</button>
+                <button type="submit" id="submit-button" class="btn btn-primary btn-lg">Salvar Prova e Gabarito</button>
             </form>
         </div>
     </div>
@@ -63,33 +59,13 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        document.getElementById('add-questao').addEventListener('click', function() {
-            const container = document.getElementById('gabarito-container');
-            const nextQuestaoNum = container.children.length + 1;
-            const newQuestaoRow = document.createElement('div');
-            newQuestaoRow.className = 'row align-items-center mb-3 gabarito-item';
-
-            const radioButtons = ['A', 'B', 'C', 'D', 'E'].map(alt =>
-                `<input type="radio" class="btn-check" name="resposta-${nextQuestaoNum}" id="q${nextQuestaoNum}-${alt.toLowerCase()}" value="${alt}" autocomplete="off" required>` +
-                `<label class="btn btn-outline-primary" for="q${nextQuestaoNum}-${alt.toLowerCase()}">${alt}</label>`
-            ).join('');
-
-            newQuestaoRow.innerHTML = `
-                <div class="col-auto"><label class="form-label fw-bold">Questão ${nextQuestaoNum}:</label></div>
-                <div class="col"><div class="btn-group" role="group">${radioButtons}</div></div>
-                <div class="col-auto ps-4"><label class="form-label">Valor:</label></div>
-                <div class="col-md-2"><input type="number" step="0.01" min="0" name="valor-${nextQuestaoNum}" class="form-control valor-questao" placeholder="Ex: 1.5" required></div>
-                <div class="col-auto"><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.gabarito-item').remove(); updateSoma();"><i class="bi bi-trash"></i></button></div>
-            `;
-            container.appendChild(newQuestaoRow);
-            updateSoma();
-        });
-
         const container = document.getElementById('gabarito-container');
         const targetValue = 6.0;
         const somaAtualEl = document.getElementById('soma-atual');
         const restanteEl = document.getElementById('restante');
         const restanteContainerEl = document.getElementById('restante-container');
+        const submitButton = document.getElementById('submit-button');
+        const valorAlerta = document.getElementById('valor-excedido-alerta');
 
         function updateSoma() {
             let soma = 0.0;
@@ -104,12 +80,39 @@
             restanteEl.textContent = restante.toFixed(1);
 
             restanteContainerEl.classList.remove('text-success', 'text-danger');
-            if (restante < 0) {
+
+            // <<< MUDANÇA: Lógica de validação >>>
+            if (soma > targetValue) {
                 restanteContainerEl.classList.add('text-danger');
-            } else if (Math.abs(restante) < 0.01) {
-                restanteContainerEl.classList.add('text-success');
+                submitButton.disabled = true; // Desativa o botão
+                valorAlerta.classList.remove('d-none'); // Mostra o alerta
+            } else {
+                if (Math.abs(restante) < 0.01) { // Usa uma tolerância para a soma exata
+                    restanteContainerEl.classList.add('text-success');
+                }
+                submitButton.disabled = false; // Ativa o botão
+                valorAlerta.classList.add('d-none'); // Esconde o alerta
             }
         }
+
+        document.getElementById('add-questao').addEventListener('click', function() {
+            const nextQuestaoNum = container.children.length + 1;
+            const newQuestaoRow = document.createElement('div');
+            newQuestaoRow.className = 'row align-items-center mb-3 gabarito-item';
+            const radioButtons = ['A', 'B', 'C', 'D', 'E'].map(alt =>
+                `<input type="radio" class="btn-check" name="resposta-${nextQuestaoNum}" id="q${nextQuestaoNum}-${alt.toLowerCase()}" value="${alt}" autocomplete="off" required>` +
+                `<label class="btn btn-outline-primary" for="q${nextQuestaoNum}-${alt.toLowerCase()}">${alt}</label>`
+            ).join('');
+            newQuestaoRow.innerHTML = `
+                <div class="col-auto"><label class="form-label fw-bold">Questão ${nextQuestaoNum}:</label></div>
+                <div class="col"><div class="btn-group" role="group">${radioButtons}</div></div>
+                <div class="col-auto ps-4"><label class="form-label">Valor:</label></div>
+                <div class="col-md-2"><input type="number" step="0.1" min="0" name="valor-${nextQuestaoNum}" class="form-control valor-questao" placeholder="Ex: 0.5" required></div>
+                <div class="col-auto"><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.gabarito-item').remove(); updateSoma();"><i class="bi bi-trash"></i></button></div>
+            `;
+            container.appendChild(newQuestaoRow);
+            updateSoma();
+        });
 
         container.addEventListener('input', function(event) {
             if (event.target.classList.contains('valor-questao')) {

@@ -31,20 +31,11 @@ public class CorrecaoService {
         RespostaAluno respostaAluno = new RespostaAluno();
         respostaAluno.setProva(prova);
         respostaAluno.setAluno(aluno);
-
-        //
-        // A resposta do aluno é um mapa simples de Questão -> Alternativa.
-        // A conversão para GabaritoQuestao era desnecessária e incorreta.
-        // Agora, simplesmente passamos o mapa de respostas recebido.
-        //
         respostaAluno.setRespostas(requestDto.getRespostas());
-
         respostaAluno.setNota(nota);
 
         respostaAlunoRepository.save(respostaAluno);
     }
-
-    // A lógica de cálculo de nota com pesos permanece a mesma.
     private double calcularNotaComPesos(Map<Integer, String> respostasAluno, Map<Integer, GabaritoQuestao> gabarito) {
         double notaFinal = 0.0;
 

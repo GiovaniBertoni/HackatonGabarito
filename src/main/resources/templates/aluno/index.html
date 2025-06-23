@@ -33,7 +33,6 @@
                     <td th:text="${resposta.prova.disciplina.nome}"></td>
                     <td th:text="${#dates.format(resposta.prova.dataAplicacao, 'dd/MM/yyyy')}"></td>
                     <td>
-                        <!-- Exibe a nota no formato "nota / nota_maxima" -->
                         <strong class="fs-5 text-primary" th:text="${#numbers.formatDecimal(resposta.nota, 1, 1, 'POINT')}"></strong>
                         <span> / </span>
                         <span th:text="${#numbers.formatDecimal(notasMaximas[resposta.prova.id], 1, 1, 'POINT')}"></span>
