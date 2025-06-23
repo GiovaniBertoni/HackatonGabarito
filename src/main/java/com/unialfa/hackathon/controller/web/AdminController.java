@@ -116,6 +116,10 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("erro", "O e-mail '" + emailUsuario + "' já está em uso.");
             return "redirect:/admin/alunos";
         }
+        if (alunoRepository.findByRa(aluno.getRa()).isPresent()) {
+            redirectAttributes.addFlashAttribute("erro", "O RA '" + aluno.getRa() + "' já está em uso.");
+            return "redirect:/admin/alunos";
+        }
         Usuario novoUsuario = new Usuario();
         novoUsuario.setNome(nomeUsuario);
         novoUsuario.setEmail(emailUsuario);

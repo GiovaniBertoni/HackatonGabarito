@@ -23,23 +23,24 @@
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
-        <!--
-          AQUI ESTÁ A LÓGICA CORRETA:
-          O atributo 'sec:authorize="hasRole(...)"' no <li> garante que o item do menu
-          só será renderizado se o usuário logado tiver o perfil (role) correto.
-        -->
         <li sec:authorize="hasRole('ADMIN')">
             <a th:href="@{/admin}" class="nav-link text-white">
                 <i class="bi bi-speedometer2 me-2"></i> Painel Admin
             </a>
         </li>
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/banco}" target="_blank" class="nav-link text-white">
+                <i class="bi bi-database me-2"></i> Base de Dados
+            </a>
+        </li>
+
         <li sec:authorize="hasRole('PROFESSOR')">
             <a th:href="@{/professor}" class="nav-link text-white">
                 <i class="bi bi-journal-text me-2"></i> Painel Professor
             </a>
         </li>
         <li sec:authorize="hasRole('ALUNO')">
-            <a href="#" class="nav-link text-white">
+            <a th:href="@{/aluno}" class="nav-link text-white">
                 <i class="bi bi-file-earmark-person me-2"></i> Minhas Notas
             </a>
         </li>
@@ -48,7 +49,7 @@
     <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle fs-4 me-2"></i>
-            <strong sec:authentication="name">Usuário</strong>
+            <strong sec:authentication="name">Utilizador</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
             <li><a class="dropdown-item" href="#">Perfil</a></li>
@@ -71,7 +72,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     <div layout:fragment="content">
-        <p>Este é o conteúdo padrão do layout. Se você está vendo isso, algo deu errado.</p>
+        <p>Este é o conteúdo padrão do layout. Se você está vendo isto, algo deu errado.</p>
     </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

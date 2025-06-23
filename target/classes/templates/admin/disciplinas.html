@@ -1,13 +1,58 @@
 <!DOCTYPE html>
-<html lang="pt-br" layout:decorate="~{layout/main-layout}" xmlns:th="http://www.w3.org/1999/xhtml"
-      xmlns:layout="http://www.w3.org/1999/xhtml">
-<head><title>Gerenciar Disciplinas</title></head>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main-layout}">
+<head>
+    <title>Gerenciar Disciplinas</title>
+</head>
 <body>
 <div layout:fragment="content">
-    <h3>Gerenciar Disciplinas</h3>
+    <h3>Gerir Disciplinas</h3>
     <div class="row mt-4">
-        <div class="col-md-8"><div class="card"><div class="card-header">Disciplinas Cadastradas</div><div class="card-body"><table class="table"><thead><tr><th>ID</th><th>Nome</th></tr></thead><tbody><tr th:each="d : ${disciplinas}"><td th:text="${d.id}"></td><td th:text="${d.nome}"></td></tr></tbody></table></div></div></div>
-        <div class="col-md-4"><div class="card"><div class="card-header">Nova Disciplina</div><div class="card-body"><form th:action="@{/admin/disciplinas}" th:object="${disciplina}" method="post"><div class="mb-3"><label for="nome" class="form-label">Nome da Disciplina</label><input type="text" th:field="*{nome}" class="form-control" required></div><button type="submit" class="btn btn-primary">Salvar</button></form></div></div></div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Disciplinas Cadastradas</div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="d : ${disciplinas}">
+                            <td th:text="${d.id}"></td>
+                            <td th:text="${d.nome}"></td>
+                            <td>
+                                <a th:href="@{/admin/disciplinas/eliminar/{id}(id=${d.id})}"
+                                   class="btn btn-sm btn-danger"
+                                   th:onclick="'return confirm(\'Tem a certeza que deseja eliminar a disciplina \\'' + ${d.nome} + '\\'? Esta ação não poderá ser desfeita se existirem provas associadas.\')'">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">Nova Disciplina</div>
+                <div class="card-body">
+                    <form th:action="@{/admin/disciplinas}" th:object="${disciplina}" method="post">
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome da Disciplina</label>
+                            <input type="text" th:field="*{nome}" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>

@@ -1,13 +1,77 @@
 <!DOCTYPE html>
-<html lang="pt-br" layout:decorate="~{layout/main-layout}" xmlns:th="http://www.w3.org/1999/xhtml"
-      xmlns:layout="http://www.w3.org/1999/xhtml">
-<head><title>Gerenciar Alunos</title></head>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main-layout}">
+<head>
+    <title>Gerenciar Alunos</title>
+</head>
 <body>
 <div layout:fragment="content">
     <h3>Gerenciar Alunos</h3>
     <div class="row mt-4">
-        <div class="col-md-8"><div class="card"><div class="card-header">Alunos Cadastrados</div><div class="card-body"><table class="table"><thead><tr><th>RA</th><th>Nome</th><th>Email</th></tr></thead><tbody><tr th:each="a : ${alunos}"><td th:text="${a.ra}"></td><td th:text="${a.usuario.nome}"></td><td th:text="${a.usuario.email}"></td></tr></tbody></table></div></div></div>
-        <div class="col-md-4"><div class="card"><div class="card-header">Novo Aluno</div><div class="card-body"><form th:action="@{/admin/alunos}" th:object="${aluno}" method="post"><div class="mb-3"><label for="ra" class="form-label">RA</label><input type="text" th:field="*{ra}" id="ra" class="form-control" required></div><div class="mb-3"><label for="nomeUsuario" class="form-label">Nome Completo</label><input type="text" name="nomeUsuario" id="nomeUsuario" class="form-control" required></div><div class="mb-3"><label for="emailUsuario" class="form-label">Email</label><input type="email" name="emailUsuario" id="emailUsuario" class="form-control" required></div><div class="mb-3"><label for="turmaId" class="form-label">Turma</label><select name="turmaId" id="turmaId" class="form-select" required><option th:each="t : ${turmas}" th:value="${t.id}" th:text="${t.nome}"></option></select></div><button type="submit" class="btn btn-primary">Salvar Aluno</button></form></div></div></div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Alunos Cadastrados</div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>RA</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${alunos}">
+                            <td th:text="${a.ra}"></td>
+                            <td th:text="${a.usuario.nome}"></td>
+                            <td th:text="${a.usuario.email}"></td>
+                            <td>
+                                <a th:href="@{/admin/alunos/editar/{id}(id=${a.id})}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i> Editar</a>
+                                <a th:href="@{/admin/alunos/eliminar/{id}(id=${a.id})}" class="btn btn-sm btn-danger" th:onclick="'return confirm(\'Tem a certeza que deseja eliminar este aluno? Esta ação não pode ser desfeita.\')'"><i class="bi bi-trash-fill"></i> Eliminar</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">Novo Aluno</div>
+                <div class="card-body">
+                    <form th:action="@{/admin/alunos}" th:object="${aluno}" method="post">
+                        <div class="mb-3">
+                            <label for="ra" class="form-label">RA</label>
+                            <input type="tel" th:field="*{ra}" id="ra" class="form-control" required
+                                   pattern="[0-9]*"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        </div>
+                        <div class="mb-3">
+                            <label for="nomeUsuario" class="form-label">Nome Completo</label>
+                            <input type="text" name="nomeUsuario" id="nomeUsuario" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="emailUsuario" class="form-label">Email</label>
+                            <input type="email" name="emailUsuario" id="emailUsuario" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="senhaUsuario" class="form-label">Senha</label>
+                            <input type="password" name="senhaUsuario" id="senhaUsuario" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="turmaId" class="form-label">Turma</label>
+                            <select name="turmaId" id="turmaId" class="form-select" required>
+                                <option th:each="t : ${turmas}" th:value="${t.id}" th:text="${t.nome}"></option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Aluno</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>
