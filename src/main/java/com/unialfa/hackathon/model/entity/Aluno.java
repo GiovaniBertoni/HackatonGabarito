@@ -22,7 +22,7 @@ public class Aluno implements Serializable {
     private String ra;
 
     public static String gerarRa(Long id) {
-        return String.format("RA%04d", id);  // Exemplo: RA0001
+        return String.format("%04d", id);  // Exemplo: RA0001
     }
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
