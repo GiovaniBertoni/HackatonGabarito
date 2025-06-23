@@ -29,8 +29,8 @@
                             <td th:text="${a.usuario.nome}"></td>
                             <td th:text="${a.usuario.email}"></td>
                             <td>
-                                <a th:href="@{/admin/alunos/editar/{id}(id=${a.id})}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i> Editar</a>
-                                <a th:href="@{/admin/alunos/eliminar/{id}(id=${a.id})}" class="btn btn-sm btn-danger" th:onclick="'return confirm(\'Tem a certeza que deseja eliminar este aluno? Esta ação não pode ser desfeita.\')'"><i class="bi bi-trash-fill"></i> Eliminar</a>
+                                <a th:href="@{/admin/alunos/editar/{id}(id=${a.id})}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i> </a>
+                                <a th:href="@{/admin/alunos/eliminar/{id}(id=${a.id})}" class="btn btn-sm btn-danger" th:onclick="'return confirm(\'Tem a certeza que deseja eliminar este aluno? Esta ação não pode ser desfeita.\')'"><i class="bi bi-trash-fill"></i></a>
                             </td>
                         </tr>
                         </tbody>

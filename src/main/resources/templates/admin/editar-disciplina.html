@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br" layout:decorate="~{layout/main-layout}" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.w3.org/1999/xhtml">
+<head><title>Editar Disciplina</title></head>
+<body>
+<div layout:fragment="content">
+    <h3>Editar Disciplina</h3>
+    <div class="card mt-4">
+        <div class="card-body">
+            <form th:action="@{/admin/disciplinas/atualizar/{id}(id=${disciplina.id})}" th:object="${disciplina}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome da Disciplina</label>
+                    <input type="text" th:field="*{nome}" class="form-control" required>
+                </div>
+                <a th:href="@{/admin/disciplinas}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Atualizar Disciplina</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
