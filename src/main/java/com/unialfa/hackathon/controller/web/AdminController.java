@@ -151,7 +151,7 @@ public class AdminController {
         turma.getAlunos().add(aluno);
         turmaRepository.save(turma);
 
-        redirectAttributes.addFlashAttribute("sucesso", "Aluno guardado com sucesso!");
+        redirectAttributes.addFlashAttribute("sucesso", "Aluno Cadastrado com sucesso!");
         return "redirect:/admin/alunos";
     }
 
