@@ -182,14 +182,23 @@ public class AdminController {
     @GetMapping("/alunos/eliminar/{id}")
     @Transactional
     public String eliminarAluno(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        Aluno aluno = alunoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Aluno inválido Id:" + id));
-        respostaAlunoRepository.deleteAll(respostaAlunoRepository.findByAlunoId(aluno.getId()));
-        for(Turma turma : aluno.getTurmas()) {
+        Aluno aluno = alunoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Aluno inválido Id:" + id));
+
+        boolean temVinculos = respostaAlunoRepository.existsByAlunoId(aluno.getId());
+
+        if (temVinculos) {
+            redirectAttributes.addFlashAttribute("erro", "Não é possível eliminar o aluno. Há vínculos com provas realizadas.");
+            return "redirect:/admin/alunos";
+        }
+
+        for (Turma turma : aluno.getTurmas()) {
             turma.getAlunos().remove(aluno);
         }
-        alunoRepository.delete(aluno);
 
-        redirectAttributes.addFlashAttribute("sucesso", "Aluno e todo o seu histórico foram eliminados com sucesso!");
+        alunoRepository.delete(aluno);
+        redirectAttributes.addFlashAttribute("sucesso", "Aluno eliminado com sucesso!");
         return "redirect:/admin/alunos";
     }
+
 }
