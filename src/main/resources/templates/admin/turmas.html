@@ -20,7 +20,6 @@
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Ano</th>
-                            <!-- <<< MUDANÇA: Nova coluna de Ações >>> -->
                             <th>Ações</th>
                         </tr>
                         </thead>
@@ -29,7 +28,6 @@
                             <td th:text="${t.id}"></td>
                             <td th:text="${t.nome}"></td>
                             <td th:text="${t.ano}"></td>
-                            <!-- <<< MUDANÇA: Botão de Eliminar adicionado >>> -->
                             <td>
                                 <a th:href="@{/admin/turmas/eliminar/{id}(id=${t.id})}"
                                    class="btn btn-sm btn-danger"

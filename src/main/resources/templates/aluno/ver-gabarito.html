@@ -28,7 +28,6 @@
                 </tr>
                 </thead>
                 <tbody>
-                <!-- Itera sobre as questões do gabarito oficial -->
                 <tr th:each="gabaritoEntry : ${gabaritoOficial.respostas}"
                 th:with="questaoNum=${gabaritoEntry.key},
                 questaoOficial=${gabaritoEntry.value},
@@ -37,10 +36,9 @@
                 th:classappend="${#strings.equalsIgnoreCase(respostaDada, questaoOficial.resposta)} ? 'table-success' : 'table-danger'">
 
                 <td class="fw-bold" th:text="${questaoNum}"></td>
-                <td th:text="${respostaDada ?: '-'}"></td> <!-- Mostra '-' se não houver resposta -->
+                <td th:text="${respostaDada ?: '-'}"></td>
                 <td th:text="${questaoOficial.resposta}"></td>
 
-                <!-- Mostra o valor da questão se acertou, ou 0.0 se errou -->
                 <td th:text="${#strings.equalsIgnoreCase(respostaDada, questaoOficial.resposta) ? #numbers.formatDecimal(questaoOficial.valor, 1, 1, 'POINT') : '0.0'}"></td>
                 </tr>
                 </tbody>

@@ -85,8 +85,7 @@ public class DataInitializer implements CommandLineRunner {
             Gabarito gabarito = new Gabarito();
             gabarito.setProva(provaSalva);
 
-            //
-            // AQUI ESTÁ A CORREÇÃO:
+            // CORREÇÃO:
             Map<Integer, GabaritoQuestao> respostasComValor = Map.of(
                     1, new GabaritoQuestao("A", 2.0),
                     2, new GabaritoQuestao("C", 2.0),

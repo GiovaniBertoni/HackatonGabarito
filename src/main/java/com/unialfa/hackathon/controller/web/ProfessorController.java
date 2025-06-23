@@ -62,7 +62,6 @@ public class ProfessorController {
                 Integer questaoNum = Integer.parseInt(entry.getKey().replace("resposta-", ""));
                 String resposta = entry.getValue();
                 try {
-                    // Adicionado .replace(",", ".") para aceitar tanto ponto quanto vírgula como separador decimal.
                     double valor = Double.parseDouble(allParams.getOrDefault("valor-" + questaoNum, "0.0").replace(",", "."));
                     gabaritoFinal.put(questaoNum, new GabaritoQuestao(resposta, valor));
                 } catch (NumberFormatException e) { /* Ignora se o valor não for um número válido */ }

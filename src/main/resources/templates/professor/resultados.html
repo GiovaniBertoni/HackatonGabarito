@@ -5,7 +5,6 @@
       layout:decorate="~{layout/main-layout}">
 <head>
     <title>Resultados da Prova</title>
-    <!-- <<< Estilo para o cursor do rato nos cabeçalhos -->
     <style>
         .sortable {
             cursor: pointer;
@@ -23,8 +22,6 @@
         <span class="badge bg-primary" th:text="${prova.disciplina.nome}"></span>
         <span class="badge bg-secondary" th:text="${prova.turma.nome}"></span>
     </p>
-
-    <!-- Painel de Estatísticas -->
     <div class="card bg-light my-4" th:if="${estatisticas.totalDeRespostas > 0}">
         <div class="card-body">
             <h5 class="card-title">Estatísticas da Turma</h5>
@@ -42,7 +39,6 @@
             <table class="table table-hover">
                 <thead>
                 <tr>
-                    <!-- <<< Cabeçalhos agora são clicáveis -->
                     <th class="sortable" onclick="sortTable(0, 'string')">RA do Aluno <i class="bi bi-arrow-down-up"></i></th>
                     <th class="sortable" onclick="sortTable(1, 'string')">Nome do Aluno <i class="bi bi-arrow-down-up"></i></th>
                     <th class="sortable" onclick="sortTable(2, 'number')">Nota Final <i class="bi bi-arrow-down-up"></i></th>
@@ -52,7 +48,6 @@
                 <tr th:each="r : ${respostas}">
                     <td th:text="${r.aluno.ra}"></td>
                     <td th:text="${r.aluno.usuario.nome}"></td>
-                    <!-- <<< Adicionado um 'data-sort' para ordenar numericamente -->
                     <td th:attr="data-sort=${r.nota}" th:text="${#numbers.formatDecimal(r.nota, 1, 1, 'POINT') + ' / ' + #numbers.formatDecimal(notaMaxima, 1, 1, 'POINT')}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(respostas)}">
@@ -63,8 +58,6 @@
         </div>
     </div>
 </div>
-
-<!-- <<< Script de Ordenação Adicionado >>> -->
 <div layout:fragment="scripts">
     <script>
         function sortTable(columnIndex, type) {
