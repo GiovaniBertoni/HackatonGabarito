@@ -49,10 +49,18 @@ public class AdminController {
 
     @PostMapping("/turmas")
     public String salvarTurma(@ModelAttribute Turma turma, RedirectAttributes redirectAttributes) {
+        boolean turmaExistente = turmaRepository.existsByNomeAndAnoLetivo(turma.getNome(), turma.getAnoLetivo());
+
+        if (turmaExistente) {
+            redirectAttributes.addFlashAttribute("erro", "Já existe uma turma com esse nome.");
+            return "redirect:/admin/turmas";
+        }
+
         turmaRepository.save(turma);
-        redirectAttributes.addFlashAttribute("sucesso", "Turma guardada com sucesso!");
+        redirectAttributes.addFlashAttribute("sucesso", "Turma Cadastrada com sucesso!");
         return "redirect:/admin/turmas";
     }
+
 
     // <<< Eliminar Turma >>>
     @GetMapping("/turmas/eliminar/{id}")
@@ -78,10 +86,17 @@ public class AdminController {
 
     @PostMapping("/disciplinas")
     public String salvarDisciplina(@ModelAttribute Disciplina disciplina, RedirectAttributes redirectAttributes) {
+        if (disciplinaRepository.existsByNome(disciplina.getNome())) {
+            redirectAttributes.addFlashAttribute("erro", "Já existe uma disciplina com esse nome.");
+            return "redirect:/admin/disciplinas";
+        }
+
         disciplinaRepository.save(disciplina);
-        redirectAttributes.addFlashAttribute("sucesso", "Disciplina guardada com sucesso!");
+        redirectAttributes.addFlashAttribute("sucesso", "Disciplina cadastrada com sucesso!");
         return "redirect:/admin/disciplinas";
     }
+
+
 
     // <<< Eliminar Disciplina >>>
     @GetMapping("/disciplinas/eliminar/{id}")
@@ -122,14 +137,24 @@ public class AdminController {
         novoUsuario.setSenha(passwordEncoder.encode(senhaUsuario));
         novoUsuario.setPerfil(Perfil.ALUNO);
         usuarioRepository.save(novoUsuario);
+
         aluno.setUsuario(novoUsuario);
-        alunoRepository.save(aluno);
-        Turma turma = turmaRepository.findById(turmaId).orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+        alunoRepository.save(aluno);  // Salva para gerar ID
+
+        // Agora gera o RA com o ID gerado
+        String raGerado = Aluno.gerarRa(aluno.getId());
+        aluno.setRa(raGerado);
+        alunoRepository.save(aluno);  // Atualiza o RA
+
+        Turma turma = turmaRepository.findById(turmaId)
+                .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
         turma.getAlunos().add(aluno);
         turmaRepository.save(turma);
-        redirectAttributes.addFlashAttribute("sucesso", "Aluno guardado com sucesso!");
+
+        redirectAttributes.addFlashAttribute("sucesso", "Aluno Cadastrado com sucesso!");
         return "redirect:/admin/alunos";
     }
+
 
     @GetMapping("/alunos/editar/{id}")
     public String editarAlunoForm(@PathVariable("id") Long id, Model model) {
@@ -157,14 +182,23 @@ public class AdminController {
     @GetMapping("/alunos/eliminar/{id}")
     @Transactional
     public String eliminarAluno(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        Aluno aluno = alunoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Aluno inválido Id:" + id));
-        respostaAlunoRepository.deleteAll(respostaAlunoRepository.findByAlunoId(aluno.getId()));
-        for(Turma turma : aluno.getTurmas()) {
+        Aluno aluno = alunoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Aluno inválido Id:" + id));
+
+        boolean temVinculos = respostaAlunoRepository.existsByAlunoId(aluno.getId());
+
+        if (temVinculos) {
+            redirectAttributes.addFlashAttribute("erro", "Não é possível eliminar o aluno. Há vínculos com provas realizadas.");
+            return "redirect:/admin/alunos";
+        }
+
+        for (Turma turma : aluno.getTurmas()) {
             turma.getAlunos().remove(aluno);
         }
-        alunoRepository.delete(aluno);
 
-        redirectAttributes.addFlashAttribute("sucesso", "Aluno e todo o seu histórico foram eliminados com sucesso!");
+        alunoRepository.delete(aluno);
+        redirectAttributes.addFlashAttribute("sucesso", "Aluno eliminado com sucesso!");
         return "redirect:/admin/alunos";
     }
+
 }

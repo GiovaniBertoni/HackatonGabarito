@@ -44,12 +44,6 @@
                 <div class="card-body">
                     <form th:action="@{/admin/alunos}" th:object="${aluno}" method="post">
                         <div class="mb-3">
-                            <label for="ra" class="form-label">RA</label>
-                            <input type="tel" th:field="*{ra}" id="ra" class="form-control" required
-                                   pattern="[0-9]*"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                        </div>
-                        <div class="mb-3">
                             <label for="nomeUsuario" class="form-label">Nome Completo</label>
                             <input type="text" name="nomeUsuario" id="nomeUsuario" class="form-control" required>
                         </div>
@@ -67,7 +61,7 @@
                                 <option th:each="t : ${turmas}" th:value="${t.id}" th:text="${t.nome}"></option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Guardar Aluno</button>
+                        <button type="submit" class="btn btn-primary">Salvar Aluno</button>
                     </form>
                 </div>
             </div>

@@ -1,13 +1,64 @@
 <!DOCTYPE html>
-<html lang="pt-br" layout:decorate="~{layout/main-layout}" xmlns:th="http://www.w3.org/1999/xhtml"
-      xmlns:layout="http://www.w3.org/1999/xhtml">
-<head><title>Gerenciar Turmas</title></head>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main-layout}">
+<head>
+    <title>Gerenciar Turmas</title>
+</head>
 <body>
 <div layout:fragment="content">
-    <h3>Gerenciar Turmas</h3>
+    <h3>Gerir Turmas</h3>
     <div class="row mt-4">
-        <div class="col-md-8"><div class="card"><div class="card-header">Turmas Cadastradas</div><div class="card-body"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>Ano</th></tr></thead><tbody><tr th:each="t : ${turmas}"><td th:text="${t.id}"></td><td th:text="${t.nome}"></td><td th:text="${t.ano}"></td></tr></tbody></table></div></div></div>
-        <div class="col-md-4"><div class="card"><div class="card-header">Nova Turma</div><div class="card-body"><form th:action="@{/admin/turmas}" th:object="${turma}" method="post"><div class="mb-3"><label for="nome" class="form-label">Nome</label><input type="text" th:field="*{nome}" class="form-control" required></div><div class="mb-3"><label for="ano" class="form-label">Ano</label><input type="number" th:field="*{ano}" class="form-control" required></div><button type="submit" class="btn btn-primary">Salvar</button></form></div></div></div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Turmas Cadastradas</div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Ano</th>
+                            <th>Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="t : ${turmas}">
+                            <td th:text="${t.id}"></td>
+                            <td th:text="${t.nome}"></td>
+                            <td th:text="${t.ano}"></td>
+                            <td>
+                                <a th:href="@{/admin/turmas/eliminar/{id}(id=${t.id})}"
+                                   class="btn btn-sm btn-danger"
+                                   th:onclick="'return confirm(\'Tem a certeza que deseja eliminar a turma \\'' + ${t.nome} + '\\'? Esta ação não poderá ser desfeita se existirem provas associadas.\')'">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">Nova Turma</div>
+                <div class="card-body">
+                    <form th:action="@{/admin/turmas}" th:object="${turma}" method="post">
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome</label>
+                            <input type="text" th:field="*{nome}" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ano" class="form-label">Ano</label>
+                            <input type="number" th:field="*{ano}" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>

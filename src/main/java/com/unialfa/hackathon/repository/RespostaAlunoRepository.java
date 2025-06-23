@@ -24,4 +24,6 @@ public interface RespostaAlunoRepository extends JpaRepository<RespostaAluno, Lo
      * @return Uma lista de respostas daquele aluno.
      */
     List<RespostaAluno> findByAlunoId(Long alunoId);
+
+    boolean existsByAlunoId(Long id);
 }
