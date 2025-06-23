@@ -6,5 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DisciplinaRepository extends JpaRepository<Disciplina, Long> {
-    // Métodos de consulta personalizados podem ser adicionados aqui se necessário.
+
+    boolean existsByNome(String nome);
+
 }

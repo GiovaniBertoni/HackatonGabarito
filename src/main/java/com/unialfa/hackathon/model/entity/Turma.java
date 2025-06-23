@@ -18,6 +18,8 @@ public class Turma implements Serializable {
     @EqualsAndHashCode.Include
     private Long id;
 
+    private String anoLetivo;
+
     @Column(nullable = false)
     private String nome;
 

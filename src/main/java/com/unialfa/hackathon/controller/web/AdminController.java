@@ -49,10 +49,18 @@ public class AdminController {
 
     @PostMapping("/turmas")
     public String salvarTurma(@ModelAttribute Turma turma, RedirectAttributes redirectAttributes) {
+        boolean turmaExistente = turmaRepository.existsByNomeAndAnoLetivo(turma.getNome(), turma.getAnoLetivo());
+
+        if (turmaExistente) {
+            redirectAttributes.addFlashAttribute("erro", "Já existe uma turma com esse nome.");
+            return "redirect:/admin/turmas";
+        }
+
         turmaRepository.save(turma);
-        redirectAttributes.addFlashAttribute("sucesso", "Turma guardada com sucesso!");
+        redirectAttributes.addFlashAttribute("sucesso", "Turma Cadastrada com sucesso!");
         return "redirect:/admin/turmas";
     }
+
 
     // <<< Eliminar Turma >>>
     @GetMapping("/turmas/eliminar/{id}")
@@ -78,10 +86,17 @@ public class AdminController {
 
     @PostMapping("/disciplinas")
     public String salvarDisciplina(@ModelAttribute Disciplina disciplina, RedirectAttributes redirectAttributes) {
+        if (disciplinaRepository.existsByNome(disciplina.getNome())) {
+            redirectAttributes.addFlashAttribute("erro", "Já existe uma disciplina com esse nome.");
+            return "redirect:/admin/disciplinas";
+        }
+
         disciplinaRepository.save(disciplina);
-        redirectAttributes.addFlashAttribute("sucesso", "Disciplina guardada com sucesso!");
+        redirectAttributes.addFlashAttribute("sucesso", "Disciplina cadastrada com sucesso!");
         return "redirect:/admin/disciplinas";
     }
+
+
 
     // <<< Eliminar Disciplina >>>
     @GetMapping("/disciplinas/eliminar/{id}")

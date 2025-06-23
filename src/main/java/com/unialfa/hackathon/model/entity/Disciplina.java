@@ -14,6 +14,8 @@ public class Disciplina implements Serializable {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, unique = true)
+
+
+    @Column(nullable = false, unique = true)  // garante que o nome seja único no banco
     private String nome;
 }
