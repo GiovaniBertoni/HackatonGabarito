@@ -8,7 +8,7 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <h3>Gerir Disciplinas</h3>
+    <h3>Gerenciar Disciplinas</h3>
     <div class="row mt-4">
         <div class="col-md-8">
             <div class="card">
@@ -27,11 +27,8 @@
                             <td th:text="${d.id}"></td>
                             <td th:text="${d.nome}"></td>
                             <td>
-                                <a th:href="@{/admin/disciplinas/eliminar/{id}(id=${d.id})}"
-                                   class="btn btn-sm btn-danger"
-                                   th:onclick="'return confirm(\'Tem a certeza que deseja eliminar a disciplina \\'' + ${d.nome} + '\\'? Esta ação não poderá ser desfeita se existirem provas associadas.\')'">
-                                    <i class="bi bi-trash-fill"></i>
-                                </a>
+                                <a th:href="@{/admin/disciplinas/editar/{id}(id=${d.id})}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
+                                <a th:href="@{/admin/disciplinas/eliminar/{id}(id=${d.id})}" class="btn btn-sm btn-danger" th:onclick="'return confirm(\'Tem a certeza que deseja eliminar a disciplina \\'' + ${d.nome} + '\\'?\')'"><i class="bi bi-trash-fill"></i></a>
                             </td>
                         </tr>
                         </tbody>

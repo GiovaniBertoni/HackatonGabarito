@@ -8,7 +8,7 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <h3>Gerir Turmas</h3>
+    <h3>Gerenciar Turmas</h3>
     <div class="row mt-4">
         <div class="col-md-8">
             <div class="card">
@@ -29,11 +29,8 @@
                             <td th:text="${t.nome}"></td>
                             <td th:text="${t.ano}"></td>
                             <td>
-                                <a th:href="@{/admin/turmas/eliminar/{id}(id=${t.id})}"
-                                   class="btn btn-sm btn-danger"
-                                   th:onclick="'return confirm(\'Tem a certeza que deseja eliminar a turma \\'' + ${t.nome} + '\\'? Esta ação não poderá ser desfeita se existirem provas associadas.\')'">
-                                    <i class="bi bi-trash-fill"></i>
-                                </a>
+                                <a th:href="@{/admin/turmas/editar/{id}(id=${t.id})}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
+                                <a th:href="@{/admin/turmas/eliminar/{id}(id=${t.id})}" class="btn btn-sm btn-danger" th:onclick="'return confirm(\'Tem a certeza que deseja eliminar a turma \\'' + ${t.nome} + '\\'?\')'"><i class="bi bi-trash-fill"></i></a>
                             </td>
                         </tr>
                         </tbody>

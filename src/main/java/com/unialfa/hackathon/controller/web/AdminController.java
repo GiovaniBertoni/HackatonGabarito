@@ -61,6 +61,25 @@ public class AdminController {
         return "redirect:/admin/turmas";
     }
 
+    @GetMapping("/turmas/editar/{id}")
+    public String editarTurmaForm(@PathVariable("id") Long id, Model model) {
+        Turma turma = turmaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Turma inválida Id:" + id));
+        model.addAttribute("turma", turma);
+        return "admin/editar-turma";
+    }
+
+    @PostMapping("/turmas/atualizar/{id}")
+    public String atualizarTurma(@PathVariable("id") Long id, @ModelAttribute Turma turma, RedirectAttributes redirectAttributes) {
+        Turma turmaExistente = turmaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Turma inválida Id:" + id));
+        turmaExistente.setNome(turma.getNome());
+        turmaExistente.setAno(turma.getAno());
+        turmaRepository.save(turmaExistente);
+        redirectAttributes.addFlashAttribute("sucesso", "Turma atualizada com sucesso!");
+        return "redirect:/admin/turmas";
+    }
+
 
     // <<< Eliminar Turma >>>
     @GetMapping("/turmas/eliminar/{id}")
@@ -96,7 +115,23 @@ public class AdminController {
         return "redirect:/admin/disciplinas";
     }
 
+    @GetMapping("/disciplinas/editar/{id}")
+    public String editarDisciplinaForm(@PathVariable("id") Long id, Model model) {
+        Disciplina disciplina = disciplinaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Disciplina inválida Id:" + id));
+        model.addAttribute("disciplina", disciplina);
+        return "admin/editar-disciplina";
+    }
 
+    @PostMapping("/disciplinas/atualizar/{id}")
+    public String atualizarDisciplina(@PathVariable("id") Long id, @ModelAttribute Disciplina disciplina, RedirectAttributes redirectAttributes) {
+        Disciplina disciplinaExistente = disciplinaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Disciplina inválida Id:" + id));
+        disciplinaExistente.setNome(disciplina.getNome());
+        disciplinaRepository.save(disciplinaExistente);
+        redirectAttributes.addFlashAttribute("sucesso", "Disciplina atualizada com sucesso!");
+        return "redirect:/admin/disciplinas";
+    }
 
     // <<< Eliminar Disciplina >>>
     @GetMapping("/disciplinas/eliminar/{id}")

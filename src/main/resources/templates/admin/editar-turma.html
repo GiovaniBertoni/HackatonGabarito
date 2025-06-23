@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br" layout:decorate="~{layout/main-layout}" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.w3.org/1999/xhtml">
+<head><title>Editar Turma</title></head>
+<body>
+<div layout:fragment="content">
+    <h3>Editar Turma</h3>
+    <div class="card mt-4">
+        <div class="card-body">
+            <form th:action="@{/admin/turmas/atualizar/{id}(id=${turma.id})}" th:object="${turma}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome da Turma</label>
+                    <input type="text" th:field="*{nome}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="ano" class="form-label">Ano</label>
+                    <input type="number" th:field="*{ano}" class="form-control" required>
+                </div>
+                <a th:href="@{/admin/turmas}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Atualizar Turma</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
